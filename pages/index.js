@@ -1,19 +1,25 @@
 import { useState, useEffect } from "react";
 import Link from "next/link";
 import Seo from "../components/Seo";
-
-const API_KEY = "966d6320d578b79ec56ad554516a3d57";
+import { useRouter } from "next/router";
 
 // 구조분해할당으로 리팩토링해보기
 export default function Home() {
     const [movies, setMovies] = useState();
+    const router = useRouter();
+    const onClick = (id) => {
+        router.push({
+            pathname: `movies/${id}`,
+            query: {
+                id,
+                title: "potato",
+            },
+        });
+    };
     useEffect(() => {
         (async () => {
-            const response = await fetch(
-                `https://api.themoviedb.org/3/movie/popular?api_key=${API_KEY}`
-            );
+            const response = await fetch("/api/movies");
             const data = await response.json();
-            console.log(data.results);
             setMovies(data.results);
         })();
     }, []);
@@ -23,7 +29,7 @@ export default function Home() {
             {!movies && <h4>Loading.....</h4>}
             {movies?.map((movie) => (
                 <div
-                    onClick={() => onClick(movie.id, movie.original_title)}
+                    onClick={() => onClick(movie.id)}
                     className="movie"
                     key={movie.id}
                 >
@@ -31,9 +37,7 @@ export default function Home() {
                         src={`https://image.tmdb.org/t/p/w500/${movie.poster_path}`}
                     />
                     <h4>
-                        <Link
-                            href={`/movies/${movie.original_title}/${movie.id}`}
-                        >
+                        <Link href={`/movies/${movie.id}`}>
                             <a>{movie.original_title}</a>
                         </Link>
                     </h4>
